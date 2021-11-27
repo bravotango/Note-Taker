@@ -71,9 +71,9 @@ app.post('/api/notes/:id', (req, res) => {
 });
 
 app.delete('/api/notes/:id', (req, res) => {
-  const findById = (n) => {
-    n.id === req.params.id;
-  };
+  //   const findById = (n) => {
+  //     return n.id === req.params.id ? n : undefined;
+  //   };
 
   fs.readFile('./db/db.json', 'utf8', (err, data) => {
     if (err) {
@@ -81,11 +81,14 @@ app.delete('/api/notes/:id', (req, res) => {
       return;
     }
     const notes = JSON.parse(data);
-    let found = "i'm empty";
-    found = notes.forEach((note) => {
-      return findById(note);
+    let filteredNotes = [];
+    // filter out the note we are deleting
+    filteredNotes = notes.filter((note) => {
+      return note.id !== req.params.id;
     });
-    res.json(`found", ${req.params.id}`);
+
+    // write the remaining notes to db.json
+    writeToFile('./db/db.json', filteredNotes);
   });
 });
 
