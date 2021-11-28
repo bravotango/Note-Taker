@@ -12,7 +12,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT || 3001;
-// TODO: move to helpers
 // Promise version of fs.readFile
 const readFromFile = util.promisify(fs.readFile);
 
