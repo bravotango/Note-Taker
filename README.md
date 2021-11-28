@@ -2,7 +2,7 @@
 
 An application that can be used to write and save notes. This application uses an Express.js back-end and will save and retrieve note data from a JSON file.
 
-It's your job to build the back end, connect the two, and then deploy the entire application to Heroku.
+Built back-end, connected to front-end, then deployed the application to Heroku: <a href="https://note-taker-bravo-tango.herokuapp.com/" target="_blank">https://note-taker-bravo-tango.herokuapp.com/</a>
 
 ## Satisfied User Story
 
