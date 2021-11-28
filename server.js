@@ -4,6 +4,7 @@ const fs = require('fs');
 const util = require('util');
 const uuid = require('./public/assets/helpers/uuid.js');
 const { clog } = require('./public/assets/middleware/clog');
+const db = require('./db');
 
 const app = express();
 
@@ -40,29 +41,37 @@ app.get('/notes', (req, res) => {
 });
 
 app.get('/api/notes', (req, res) => {
-  readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)));
+  //readFromFile('db/db.json').then((data) => data ? res.json(JSON.parse(data)) : []);
+  db.readNotes()
+    .then((data) => {
+      return res.json(data);
+    })
+    .catch((err) => res.status(500).json(err));
 });
 
 app.post('/api/notes', (req, res) => {
-  const { title, text } = req.body;
+  //   const { title, text } = req.body;
 
-  if (title && text) {
-    const newNote = {
-      title,
-      text,
-      id: uuid(),
-    };
-    const response = {
-      status: 'success',
-      body: newNote,
-    };
+  //   if (title && text) {
+  //     const newNote = {
+  //       title,
+  //       text,
+  //       id: uuid(),
+  //     };
+  //     const response = {
+  //       status: 'success',
+  //       body: newNote,
+  //     };
 
-    readAndAppend(newNote, './db/db.json');
+  //     readAndAppend(newNote, './db/db.json');
 
-    res.status(201).json(response);
-  } else {
-    res.status(500).json('Error in adding new note');
-  }
+  //     res.status(201).json(response);
+  //   } else {
+  //     res.status(500).json('Error in adding new note');
+  //   }
+  db.writeNotes(req.body)
+    .then((data) => res.json(data))
+    .catch((err) => res.status(500).json(err));
 });
 
 app.post('/api/notes/:id', (req, res) => {
@@ -70,16 +79,19 @@ app.post('/api/notes/:id', (req, res) => {
 });
 
 app.delete('/api/notes/:id', (req, res) => {
-  readFromFile('./db/db.json')
-    .then((data) => JSON.parse(data))
-    .then((json) => {
-      const filteredNotes = json.filter((note) => {
-        return note.id !== req.params.id;
-      });
-      writeToFile('./db/db.json', filteredNotes);
-      // Respond to the DELETE request
-      res.json(`Note ${req.params.id} has been deleted 🗑️`);
-    });
+  db.deleteNote(req.params.id)
+    .then(() => res.json({ ok: true }))
+    .catch((err) => res.status(500).json(err));
+  //   readFromFile('./db/db.json')
+  //     .then((data) => JSON.parse(data))
+  //     .then((json) => {
+  //       const filteredNotes = json.filter((note) => {
+  //         return note.id !== req.params.id;
+  //       });
+  //       writeToFile('./db/db.json', filteredNotes);
+  //       // Respond to the DELETE request
+  //       res.json(`Note ${req.params.id} has been deleted 🗑️`);
+  //     });
 });
 
 app.get('*', (req, res) => {
