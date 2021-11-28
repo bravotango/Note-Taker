@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const util = require('util');
 const uuid = require('./public/assets/helpers/uuid.js');
 
 const app = express();
@@ -14,14 +15,11 @@ const db = require('./db/db.json');
 
 app.use(express.static('public'));
 
-app.get('/notes', (req, res) => {
-  res.sendFile(path.join(__dirname + '/public/notes.html'));
-});
+// TODO: move to helpers
+// Promise version of fs.readFile
+const readFromFile = util.promisify(fs.readFile);
 
-app.get('/api/notes', (req, res) => {
-  res.send(db);
-});
-
+// TODO move these to helpers
 const writeToFile = (destination, content) =>
   fs.writeFile(destination, JSON.stringify(content, null, 4), (err) =>
     err ? console.error(err) : console.info(`\nData written to ${destination}`)
@@ -39,11 +37,15 @@ const readAndAppend = (content, file) => {
   });
 };
 
-app.post('/api/notes', (req, res) => {
-  console.log(req.rawHeaders);
-  console.info(`${req.method} request received to add a review`);
-  console.log(`id, ${req.body.title}`);
+app.get('/notes', (req, res) => {
+  res.sendFile(path.join(__dirname + '/public/notes.html'));
+});
 
+app.get('/api/notes', (req, res) => {
+  res.send(db);
+});
+
+app.post('/api/notes', (req, res) => {
   const { title, text } = req.body;
 
   if (title && text) {
@@ -56,7 +58,6 @@ app.post('/api/notes', (req, res) => {
       status: 'success',
       body: newNote,
     };
-    console.log(response);
 
     readAndAppend(newNote, './db/db.json');
 
@@ -71,25 +72,16 @@ app.post('/api/notes/:id', (req, res) => {
 });
 
 app.delete('/api/notes/:id', (req, res) => {
-  //   const findById = (n) => {
-  //     return n.id === req.params.id ? n : undefined;
-  //   };
-
-  fs.readFile('./db/db.json', 'utf8', (err, data) => {
-    if (err) {
-      res.send(`error`);
-      return;
-    }
-    const notes = JSON.parse(data);
-    let filteredNotes = [];
-    // filter out the note we are deleting
-    filteredNotes = notes.filter((note) => {
-      return note.id !== req.params.id;
+  readFromFile('./db/db.json')
+    .then((data) => JSON.parse(data))
+    .then((json) => {
+      const filteredNotes = json.filter((note) => {
+        return note.id !== req.params.id;
+      });
+      writeToFile('./db/db.json', filteredNotes);
+      // Respond to the DELETE request
+      res.json(`Note ${req.params.id} has been deleted 🗑️`);
     });
-
-    // write the remaining notes to db.json
-    writeToFile('./db/db.json', filteredNotes);
-  });
 });
 
 app.get('*', (req, res) => {
