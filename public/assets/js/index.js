@@ -30,6 +30,7 @@ const getNotes = () =>
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
+      Accept: 'application/json',
     },
   });
 
@@ -51,6 +52,9 @@ const deleteNote = (id) =>
   });
 
 const renderActiveNote = () => {
+  if (!activeNote) {
+    return;
+  }
   hide(saveNoteBtn);
   if (activeNote.id) {
     noteTitle.setAttribute('readonly', true);
@@ -71,8 +75,8 @@ const handleNoteSave = () => {
     text: noteText.value,
   };
   saveNote(newNote).then(() => {
-    getAndRenderNotes();
     renderActiveNote();
+    getAndRenderNotes();
   });
 };
 
@@ -92,9 +96,8 @@ const handleNoteDelete = (e) => {
   }
 
   deleteNote(noteId).then(() => {
-    getAndRenderNotes().then(() => {
-      renderActiveNote();
-    });
+    getAndRenderNotes();
+    renderActiveNote();
   });
 };
 
@@ -122,7 +125,10 @@ const handleRenderSaveBtn = () => {
 // Render the list of note titles
 const renderNoteList = async (notes) => {
   let jsonNotes = await notes.json();
+  alert(`${jsonNotes.length}`);
+
   if (window.location.pathname === '/notes') {
+    alert(jsonNotes);
     noteList.forEach((el) => (el.innerHTML = ''));
   }
 
@@ -153,7 +159,6 @@ const renderNoteList = async (notes) => {
 
       liEl.append(delBtnEl);
     }
-
     return liEl;
   };
 

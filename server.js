@@ -3,21 +3,20 @@ const path = require('path');
 const fs = require('fs');
 const util = require('util');
 const uuid = require('./public/assets/helpers/uuid.js');
+const { clog } = require('./public/assets/middleware/clog');
 
 const app = express();
 
+app.use(clog);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT || 3001;
-
-const db = require('./db/db.json');
-
-app.use(express.static('public'));
-
 // TODO: move to helpers
 // Promise version of fs.readFile
 const readFromFile = util.promisify(fs.readFile);
+
+app.use(express.static('public'));
 
 // TODO move these to helpers
 const writeToFile = (destination, content) =>
@@ -42,7 +41,7 @@ app.get('/notes', (req, res) => {
 });
 
 app.get('/api/notes', (req, res) => {
-  res.send(db);
+  readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)));
 });
 
 app.post('/api/notes', (req, res) => {
