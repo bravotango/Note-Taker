@@ -1,11 +1,11 @@
 const express = require('express');
 const path = require('path');
 const routes = require('./routes');
-const { clog } = require('./public/assets/middleware/clog');
+const { colorLog } = require('./public/assets/middleware/colorLog');
 
 const app = express();
 
-app.use(clog);
+app.use(colorLog);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(routes);
@@ -23,5 +23,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () =>
-  console.log(`App listening at http://localhost:${PORT} 🚀`)
+  console.log(`\n\n🚀 App listening at http://localhost:${PORT}\n\n`)
 );

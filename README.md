@@ -37,6 +37,12 @@ WHEN I click on the Write icon in the navigation at the top of the page
 THEN I am presented with empty fields to enter a new note title and the note’s text in the right-hand column
 ```
 
+## Node.js view
+
+For easier scanning in the terminal, request types (GET, POST, DELETE) are consoled with an emoji and color with `middleware/colorLog.js`.
+
+![View of colorLog output.](./public/assets/images/colorLog.png)
+
 ## Screenshots
 
 The following images show the web application's appearance and functionality:
