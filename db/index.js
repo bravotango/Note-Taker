@@ -1,18 +1,18 @@
 const util = require('util');
 const fs = require('fs');
-
-const uuid = require('../public/assets/helpers/uuid');
+const { v4: uuidv4 } = require('uuid');
 
 const readFromFile = util.promisify(fs.readFile);
 const writeToFile = util.promisify(fs.writeFile);
+const dbFile = 'db/db.json';
 
 class DB {
   read() {
-    return readFromFile('db/db.json', 'utf-8');
+    return readFromFile(dbFile, 'utf-8');
   }
 
   write(note) {
-    return writeToFile('db/db.json', JSON.stringify(note));
+    return writeToFile(dbFile, JSON.stringify(note));
   }
 
   readNotes() {
@@ -35,7 +35,7 @@ class DB {
     const newNote = {
       title,
       text,
-      id: uuid(),
+      id: uuidv4(),
     };
 
     return this.readNotes()
